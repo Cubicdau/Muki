@@ -66,7 +66,10 @@
 #define VS10XX_SM_ADPCM         0x1000  /**< VS10xx register */
 #define VS10XX_SM_ADPCM_HP      0x2000  /**< VS10xx register */
 
-
+static unsigned int playState;
+#define idle		0
+#define playback	1
+#define pause		2
 /**********************************************************
  * Klasse VS10XX
  **********************************************************/
@@ -88,7 +91,8 @@ public:
 
   void WriteRegister( unsigned char addressbyte, unsigned char highbyte, unsigned char lowbyte );
   unsigned int ReadRegister( unsigned char addressbyte );
-
+  void playpause ( void);
+  void getState( void );
   void SineTest( void );
 
 private:
@@ -98,6 +102,7 @@ private:
   void DeselectControl( void );
   void SelectData( void );
   void DeselectData( void );
+		static void feed();
   unsigned char Check_DREQ( void );
 };
 

@@ -13,7 +13,7 @@
 VS10XX::VS10XX()
 {
 }
-
+byte VS10XX::buffer[32];
 /**********************************************************
  * öffentliche Methoden
  **********************************************************/
@@ -344,38 +344,10 @@ unsigned char* VS10XX::Send32( unsigned char* pBuffer )
   }
 
   /* Send 32 octets of disk block data to VS10xx */
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
-  SPI.transfer( *pBuffer++ );
+		for (int i=0; i<32; i++)
+		{
+			SPI.transfer(pBuffer[i]);
+		}
   DeselectData(); /* Deselect Data-transfer */
   return pBuffer;
 }
@@ -524,6 +496,10 @@ void VS10XX::SineTest()
   SPI.transfer( 0x00 );
   SPI.transfer( 0x00 );
   SPI.transfer( 0x00 );
+while( !( Check_DREQ() ) )      /* Wait for DREQ = 1                               */
+  {
+    ; 			 /* Do nothing while waiting for DREQ = 1           */
+  }
   DeselectData();
 
   //  delay( 500 );           /* 500 ms delay */
@@ -538,7 +514,71 @@ void VS10XX::SineTest()
   //  SPI.transfer( 0x00 );
   //  SPI.transfer( 0x00 );
   //  SPI.transfer( 0x00 );
-  DeselectData();
+  //DeselectData();
 
-  delay( 500 );            /* 500 ms delay */
+  //delay( 500 );            /* 500 ms delay */
+}
+/*int VS10XX::getState()
+{
+	return playState;
+}*/
+void VS10XX::playpause()
+{
+	if (playState == playback)
+	{
+		detachInterrupt(0);
+		playState = pause;
+	}
+
+	if (playState == pause)
+	{
+		feed();
+		playState = playback;
+		attachInterrupt(0, feed, RISING);
+	}
+}
+void VS10XX::feed()
+{
+		 SelectData(); /* Select Data-transfer */
+  while( !( Check_DREQ() ) )      /* Wait for DREQ = 1 */
+  {
+    VS10XX_FREETIME;
+  }
+
+  /* Send 32 octets of disk block data to VS10xx */
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  SPI.transfer( *pBuffer++ );
+  DeselectData(); /* Deselect Data-transfer */
+		sei();
+	}
 }
